@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/andrewzlchen/ray_tracer/vector"
+	"github.com/andrewzlchen/ray_tracer/src/vector"
 )
 
 // WriteColor writes color vector values out to an output stream

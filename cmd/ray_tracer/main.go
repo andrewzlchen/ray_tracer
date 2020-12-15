@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/andrewzlchen/ray_tracer/color"
-	"github.com/andrewzlchen/ray_tracer/vector"
+	"github.com/andrewzlchen/ray_tracer/src/color"
+	"github.com/andrewzlchen/ray_tracer/src/vector"
 )
 
 // size of the output image
@@ -15,10 +15,6 @@ const (
 )
 
 func main() {
-	printValues()
-}
-
-func printValues() {
 	fmt.Fprint(os.Stderr, "Starting to write values\n")
 
 	// print the p3 metadata
