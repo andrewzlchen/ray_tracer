@@ -36,9 +36,9 @@ func (v *Vec3) AddVector(other *Vec3) *Vec3 {
 // SubtractVector returns a new Vec3 that is a returned by dividing a Vec3 by a float
 func (v *Vec3) SubtractVector(subtractor *Vec3) *Vec3 {
 	return &Vec3{
-		X: v.X / subtractor.X,
-		Y: v.Y / subtractor.Y,
-		Z: v.Z / subtractor.Z,
+		X: v.X - subtractor.X,
+		Y: v.Y - subtractor.Y,
+		Z: v.Z - subtractor.Z,
 	}
 }
 

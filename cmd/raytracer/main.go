@@ -25,7 +25,7 @@ var (
 	vertical   = rt.NewVec3(0, viewportHeight, 0)
 
 	horizontalDivTwo, _ = horizontal.DivideFloat(2)
-	verticalDivTwo, _   = horizontal.DivideFloat(2)
+	verticalDivTwo, _   = vertical.DivideFloat(2)
 	lowerLeftCorner     = origin.SubtractVector(horizontalDivTwo).SubtractVector(verticalDivTwo).SubtractVector(rt.NewVec3(0, 0, focalLength))
 )
 
