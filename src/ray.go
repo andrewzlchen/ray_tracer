@@ -90,6 +90,9 @@ func (r *Ray) linearBlueGradient() (*Vec3, error) {
 // If there are 0 solutions where (P(t)-C) dot (P(t)-C) = r^2, then this ray does not intersect with the sphere
 // If there is 1 solution where (P(t)-C) dot (P(t)-C) = r^2, then this ray only intersects with the sphere in one spot, and this ray is tangent to the sphere's surface
 // If there are 2 solution where (P(t)-C) dot (P(t)-C) = r^2, then this ray goes through the sphere, and there is a point on the front side where this ray intersects and one more in the back
+//
+// The final equation to solve for t given x,y,z is:
+// t^2b ⋅ b + 2tb ⋅ (A−C) + (A−C) ⋅ (A−C) − r^2 = 0
 func (r *Ray) hitsSphere(center *Vec3, radius float64) bool {
 	oc := r.Origin().SubtractVector(center)
 
