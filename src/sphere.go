@@ -11,6 +11,14 @@ type Sphere struct {
 	Radius float64
 }
 
+// NewSphere returns a new sphere
+func NewSphere(center *Vec3, radius float64) *Sphere {
+	return &Sphere{
+		Center: center,
+		Radius: radius,
+	}
+}
+
 // Hit returns whether the passed-in ray hits the current sphere
 func (s *Sphere) Hit(ray *Ray, tMin, tMax float64) (*HitRecord, bool, error) {
 	// Use quadratic equation to solve for t (a point on ray r such that it intersects with the sphere)
@@ -31,6 +39,10 @@ func (s *Sphere) Hit(ray *Ray, tMin, tMax float64) (*HitRecord, bool, error) {
 	a := ray.Direction().LengthSquared()
 	halfB := oc.Dot(ray.Direction())
 	c := oc.LengthSquared() - s.Radius*s.Radius
+
+	if a == 0 {
+		return nil, false, errors.New("a ray with no direction cannot intersect anything")
+	}
 
 	// Use the discriminant to see whether there are any solutions
 	// if discriminant < 0, no solutions

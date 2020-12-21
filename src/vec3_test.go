@@ -10,9 +10,9 @@ import (
 func TestVec3(t *testing.T) {
 	t.Run("Creating a Vec3 works", func(t *testing.T) {
 		vec := raytracer.NewVec3(0, 0, 0)
-		assert.Equal(t, vec.X, 0, "vector.x should be 0")
-		assert.Equal(t, vec.Y, 0, "vector.y should be 0")
-		assert.Equal(t, vec.Z, 0, "vector.z should be 0")
+		assert.Equal(t, vec.X, 0.0, "vector.x should be 0")
+		assert.Equal(t, vec.Y, 0.0, "vector.y should be 0")
+		assert.Equal(t, vec.Z, 0.0, "vector.z should be 0")
 	})
 }
 
