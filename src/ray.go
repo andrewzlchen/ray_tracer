@@ -1,7 +1,9 @@
 package raytracer
 
 import (
+	"errors"
 	"fmt"
+	"math"
 )
 
 // Ray is a struc that contains a origin and a direction and can be described the formula
@@ -35,18 +37,23 @@ func (r *Ray) Direction() *Vec3 {
 }
 
 // At returns the point on the ray given the coefficient, t
-func (r *Ray) At(t int64) *Vec3 {
+func (r *Ray) At(t float64) *Vec3 {
 	return r.Origin().
 		AddVector(
 			r.Direction().
-				MultiplyFloat(float64(t)),
+				MultiplyFloat(t),
 		)
 }
 
 // Color computes the color of the ray.
 func (r *Ray) Color() (*Vec3, error) {
-	if r.hitsSphere(NewVec3(0, 0, -1), 0.5) {
-		return NewVec3(1.0, 0, 0), nil
+	t := r.hitsSphere(NewVec3(0, 0, -1), 0.5)
+	if t > 0.0 {
+		N, err := r.At(t).SubtractVector(NewVec3(0, 0, -1)).Unit()
+		if err != nil {
+			return nil, errors.New("cannot get the unit vector to calculate color")
+		}
+		return NewVec3(N.X+1, N.Y+1, N.Z+1).MultiplyFloat(0.5), nil
 	}
 	return r.linearBlueGradient()
 }
@@ -93,12 +100,15 @@ func (r *Ray) linearBlueGradient() (*Vec3, error) {
 //
 // The final equation to solve for t given x,y,z is:
 // t^2b ⋅ b + 2tb ⋅ (A−C) + (A−C) ⋅ (A−C) − r^2 = 0
-func (r *Ray) hitsSphere(center *Vec3, radius float64) bool {
+func (r *Ray) hitsSphere(center *Vec3, radius float64) float64 {
 	oc := r.Origin().SubtractVector(center)
 
 	a := r.Direction().Dot(r.Direction())
 	b := 2.0 * oc.Dot(r.Direction())
 	c := oc.Dot(oc) - radius*radius
 	discriminant := b*b - 4*a*c
-	return discriminant > 0
+	if discriminant < 0 {
+		return -1.0
+	}
+	return (-b - math.Sqrt(discriminant)) / (2.0 * a)
 }
