@@ -103,25 +103,26 @@ func (r *Ray) linearBlueGradient() (*Vec3, error) {
 // If there are 2 solution where (P(t)-C) dot (P(t)-C) = r^2, then this ray goes through the sphere, and there is a point on the front side where this ray intersects and one more in the back
 //
 // The final equation to solve for t given x,y,z is:
-// t^2b ⋅ b + 2tb ⋅ (A−C) + (A−C) ⋅ (A−C) − r^2 = 0
+// t^2(b ⋅ b) + 2tb ⋅ (A−C) + (A−C) ⋅ (A−C) − r^2 = 0
+//
+// We can use the quadratic formula to solve for t where a = (b ⋅ b), b = 2(b ⋅ (A-C))), and c = ((A-C)) ⋅ (A-C) - r^2)
+// but if we utilize the fact that if b = 2h, the formula becomes:
+//
+// (-h +- sqrt(h^2 - ac)) / a
 func (r *Ray) hitsSphere(center *Vec3, radius float64) float64 {
-	// (A - C)
 	oc := r.Origin().SubtractVector(center)
-	// b ⋅ b
-	a := r.Direction().Dot(r.Direction())
-	// 2((A-C) ⋅ b)
-	b := 2.0 * oc.Dot(r.Direction())
-	// (A−C) ⋅ (A−C) − r^2
-	c := oc.Dot(oc) - radius*radius
+	a := r.Direction().LengthSquared()
+	halfB := oc.Dot(r.Direction())
+	c := oc.LengthSquared() - radius*radius
 
 	// discriminant of the quadratic formula
 	//     discriminant > 0 -> 2 solutions
 	//     discriminant = 0 -> 1 solution
 	//     discriminant < 0 -> 0 solutions
-	discriminant := b*b - 4*a*c
+	discriminant := halfB*halfB - a*c
 	if discriminant < 0 {
 		return -1.0
 	}
 	// quadratic formula: solve for t given t = (-b +- sqrt( b^2 - 4ac )) / 2a
-	return (-b - math.Sqrt(discriminant)) / (2.0 * a)
+	return (-halfB - math.Sqrt(discriminant)) / a
 }
