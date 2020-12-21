@@ -47,14 +47,18 @@ func (r *Ray) At(t float64) *Vec3 {
 
 // Color computes the color of the ray.
 func (r *Ray) Color() (*Vec3, error) {
-	t := r.hitsSphere(NewVec3(0, 0, -1), 0.5)
+	sphereCenter := NewVec3(0, 0, -1)
+	t := r.hitsSphere(sphereCenter, 0.5)
 	if t > 0.0 {
-		N, err := r.At(t).SubtractVector(NewVec3(0, 0, -1)).Unit()
+		// N is the surface normal vector of the sphere at position t on ray
+		surfaceNormal, err := r.At(t).SubtractVector(sphereCenter).Unit()
 		if err != nil {
-			return nil, errors.New("cannot get the unit vector to calculate color")
+			return nil, errors.New("cannot get surface normal vector")
 		}
-		return NewVec3(N.X+1, N.Y+1, N.Z+1).MultiplyFloat(0.5), nil
+		// scale surface normal vector from -1 < x < 1 to 0 < x < 1
+		return NewVec3(surfaceNormal.X+1, surfaceNormal.Y+1, surfaceNormal.Z+1).MultiplyFloat(0.5), nil
 	}
+	// there is no intersection
 	return r.linearBlueGradient()
 }
 
@@ -101,14 +105,23 @@ func (r *Ray) linearBlueGradient() (*Vec3, error) {
 // The final equation to solve for t given x,y,z is:
 // t^2b ⋅ b + 2tb ⋅ (A−C) + (A−C) ⋅ (A−C) − r^2 = 0
 func (r *Ray) hitsSphere(center *Vec3, radius float64) float64 {
+	// (A - C)
 	oc := r.Origin().SubtractVector(center)
-
+	// b ⋅ b
 	a := r.Direction().Dot(r.Direction())
+	// 2((A-C) ⋅ b)
 	b := 2.0 * oc.Dot(r.Direction())
+	// (A−C) ⋅ (A−C) − r^2
 	c := oc.Dot(oc) - radius*radius
+
+	// discriminant of the quadratic formula
+	//     discriminant > 0 -> 2 solutions
+	//     discriminant = 0 -> 1 solution
+	//     discriminant < 0 -> 0 solutions
 	discriminant := b*b - 4*a*c
 	if discriminant < 0 {
 		return -1.0
 	}
+	// quadratic formula: solve for t given t = (-b +- sqrt( b^2 - 4ac )) / 2a
 	return (-b - math.Sqrt(discriminant)) / (2.0 * a)
 }
