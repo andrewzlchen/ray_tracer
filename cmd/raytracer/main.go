@@ -1,7 +1,9 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"math/rand"
 	"os"
 
 	rt "github.com/andrewzlchen/raytracer/src"
@@ -9,24 +11,10 @@ import (
 
 const (
 	// IMAGE
-	aspectRatio = 16.0 / 9.0
-	imageWidth  = 400
-	imageHeight = int(imageWidth / aspectRatio)
-
-	// CAMERA
-	viewportHeight = 2.0
-	viewportWidth  = aspectRatio * viewportHeight
-	focalLength    = 1.0
-)
-
-var (
-	origin     = rt.NewVec3(0, 0, 0)
-	horizontal = rt.NewVec3(viewportWidth, 0, 0)
-	vertical   = rt.NewVec3(0, viewportHeight, 0)
-
-	horizontalDivTwo, _ = horizontal.DivideFloat(2)
-	verticalDivTwo, _   = vertical.DivideFloat(2)
-	lowerLeftCorner     = origin.SubtractVector(horizontalDivTwo).SubtractVector(verticalDivTwo).SubtractVector(rt.NewVec3(0, 0, focalLength))
+	aspectRatio     = 16.0 / 9.0
+	imageWidth      = 400
+	imageHeight     = int(imageWidth / aspectRatio)
+	samplesPerPixel = 100
 )
 
 // RENDER
@@ -39,23 +27,32 @@ func main() {
 	// Print the p3 metadata
 	fmt.Printf("P3\n%d %d\n255\n", imageWidth, imageHeight)
 
+	// Set up buffered stdout
+	bufferedStdout := bufio.NewWriter(os.Stdout)
+	defer bufferedStdout.Flush()
+
+	// Set up camera
+	camera, err := rt.NewCamera(rt.NewVec3(0, 0, 0))
+	if err != nil {
+		panic("could not set up the camera")
+	}
+
 	for j := imageHeight - 1; j >= 0; j-- {
 		fmt.Fprintf(os.Stderr, "\rScanlines remaining: %d\n", j)
 		for i := 0; i < imageWidth; i++ {
-			u := float64(i) / float64(imageWidth-1)
-			v := float64(j) / float64(imageHeight-1)
+			pixelColor := rt.NewVec3(0, 0, 0)
+			for s := 0; s < samplesPerPixel; s++ {
+				u := (float64(i) + rand.Float64()) / float64(imageWidth-1)
+				v := (float64(j) + rand.Float64()) / float64(imageHeight-1)
 
-			direction := lowerLeftCorner.
-				AddVector(horizontal.MultiplyFloat(u)).
-				AddVector(vertical.MultiplyFloat(v)).
-				SubtractVector(origin)
-
-			ray := rt.NewRay(origin, direction)
-			currentColor, err := ray.Color(world)
-			if err != nil {
-				panic(fmt.Sprintf("could not get color: %s", err))
+				ray := camera.GetRay(u, v)
+				currentColor, err := ray.Color(world)
+				if err != nil {
+					panic(fmt.Sprintf("could not get color: %s", err))
+				}
+				pixelColor = pixelColor.AddVector(currentColor)
 			}
-			rt.WriteColor(os.Stdout, currentColor)
+			rt.WriteColor(bufferedStdout, pixelColor, samplesPerPixel)
 		}
 	}
 	fmt.Fprint(os.Stderr, "Done!\n")
