@@ -31,6 +31,11 @@ var (
 
 // RENDER
 func main() {
+	// Add elements to the world
+	world := &rt.HittableList{}
+	world.Add(&rt.Sphere{Center: rt.NewVec3(0, 0, -1), Radius: 0.5})
+	world.Add(&rt.Sphere{Center: rt.NewVec3(0, -100.5, -1), Radius: 100})
+
 	// Print the p3 metadata
 	fmt.Printf("P3\n%d %d\n255\n", imageWidth, imageHeight)
 
@@ -46,7 +51,7 @@ func main() {
 				SubtractVector(origin)
 
 			ray := rt.NewRay(origin, direction)
-			currentColor, err := ray.Color()
+			currentColor, err := ray.Color(world)
 			if err != nil {
 				panic(fmt.Sprintf("could not get color: %s", err))
 			}

@@ -91,7 +91,7 @@ func (v *Vec3) Length() float64 {
 
 // LengthSquared returns the squared length of the vector
 func (v *Vec3) LengthSquared() float64 {
-	return v.X*v.X + v.Y*v.Y + v.Z*v.Z
+	return v.Dot(v)
 }
 
 // Unit returns a unit vector of the caller

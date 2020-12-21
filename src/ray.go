@@ -1,7 +1,6 @@
 package raytracer
 
 import (
-	"errors"
 	"fmt"
 	"math"
 )
@@ -46,17 +45,13 @@ func (r *Ray) At(t float64) *Vec3 {
 }
 
 // Color computes the color of the ray.
-func (r *Ray) Color() (*Vec3, error) {
-	sphereCenter := NewVec3(0, 0, -1)
-	t := r.hitsSphere(sphereCenter, 0.5)
-	if t > 0.0 {
-		// N is the surface normal vector of the sphere at position t on ray
-		surfaceNormal, err := r.At(t).SubtractVector(sphereCenter).Unit()
-		if err != nil {
-			return nil, errors.New("cannot get surface normal vector")
-		}
-		// scale surface normal vector from -1 < x < 1 to 0 < x < 1
-		return NewVec3(surfaceNormal.X+1, surfaceNormal.Y+1, surfaceNormal.Z+1).MultiplyFloat(0.5), nil
+func (r *Ray) Color(world Hittable) (*Vec3, error) {
+	hitRecord, didHit, err := world.Hit(r, 0, math.Inf(1))
+	if err != nil {
+		return nil, fmt.Errorf("could not compute collision: %s", err)
+	}
+	if didHit {
+		return hitRecord.Normal.AddVector(NewVec3(1, 1, 1)).MultiplyFloat(0.5), nil
 	}
 	// there is no intersection
 	return r.linearBlueGradient()
@@ -96,7 +91,7 @@ func (r *Ray) linearBlueGradient() (*Vec3, error) {
 // If a given point (a,b,c) is outside of the sphere, then a^2 + b^2 + c^2 > r^2
 //
 // If we need to solve for a point t such that P(t) - C, where P is a point along the ray and C is the center of a sphere, the
-// equation is (P-C) dot (P-C) = r^2
+// equation is (P_x,y,z-C_x,y,z) dot (P_x,y,z-C_x,y,z) = r^2
 //
 // If there are 0 solutions where (P(t)-C) dot (P(t)-C) = r^2, then this ray does not intersect with the sphere
 // If there is 1 solution where (P(t)-C) dot (P(t)-C) = r^2, then this ray only intersects with the sphere in one spot, and this ray is tangent to the sphere's surface
