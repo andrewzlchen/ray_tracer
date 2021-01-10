@@ -15,6 +15,7 @@ const (
 	imageWidth      = 400
 	imageHeight     = int(imageWidth / aspectRatio)
 	samplesPerPixel = 100
+	maxDepth        = 50
 )
 
 // RENDER
@@ -46,7 +47,7 @@ func main() {
 				v := (float64(j) + rand.Float64()) / float64(imageHeight-1)
 
 				ray := camera.GetRay(u, v)
-				currentColor, err := ray.Color(world)
+				currentColor, err := ray.Color(world, maxDepth)
 				if err != nil {
 					panic(fmt.Sprintf("could not get color: %s", err))
 				}

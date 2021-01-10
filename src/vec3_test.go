@@ -124,3 +124,17 @@ func TestVec3Divide(t *testing.T) {
 		}
 	})
 }
+
+func TestRandomUnitInUnitSphere(t *testing.T) {
+	t.Run("Making two calls to RandomUnitInUnitSphere does not return the same vector", func(t *testing.T) {
+		one := raytracer.RandomUnitInUnitSphere()
+		two := raytracer.RandomUnitInUnitSphere()
+		assert.NotEqual(t, one, two, "the two calls to RandomUnitInSphere were the same")
+	})
+
+	t.Run("length of vector is less than 1", func(t *testing.T) {
+		point := raytracer.RandomUnitInUnitSphere()
+		lengthLessThanOne := point.Length() < 1.0
+		assert.True(t, lengthLessThanOne, "length is greater than one")
+	})
+}

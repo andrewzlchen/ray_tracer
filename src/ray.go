@@ -45,13 +45,24 @@ func (r *Ray) At(t float64) *Vec3 {
 }
 
 // Color computes the color of the ray.
-func (r *Ray) Color(world Hittable) (*Vec3, error) {
+func (r *Ray) Color(world Hittable, depth int) (*Vec3, error) {
+	if depth <= 0 {
+		// fmt.Fprintf(os.Stderr, "maximum recursion depth reached: returning default vec\ndepth: %d\n", depth)
+		return NewVec3(0, 0, 0), nil
+	}
+
 	hitRecord, didHit, err := world.Hit(r, 0, math.Inf(1))
 	if err != nil {
 		return nil, fmt.Errorf("could not compute collision: %s", err)
 	}
 	if didHit {
-		return hitRecord.Normal.AddVector(NewVec3(1, 1, 1)).MultiplyFloat(0.5), nil
+		target := hitRecord.P.AddVector(hitRecord.Normal).AddVector(RandomUnitInUnitSphere())
+		randomRay := NewRay(hitRecord.P, target.SubtractVector(hitRecord.P))
+		doubleColor, err := randomRay.Color(world, depth-1)
+		if err != nil {
+			return nil, fmt.Errorf("could not calculate color of random normal: %s", err)
+		}
+		return doubleColor.MultiplyFloat(0.5), nil
 	}
 	// there is no intersection
 	return r.linearBlueGradient()

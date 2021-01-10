@@ -3,6 +3,7 @@ package raytracer
 import (
 	"errors"
 	"math"
+	"math/rand"
 )
 
 // Vec3 is a representation of a 3 dimensional vector
@@ -101,4 +102,25 @@ func (v *Vec3) Unit() (*Vec3, error) {
 		return nil, errors.New("cannot get the unit vector of a zero vector")
 	}
 	return v, nil
+}
+
+// Random returns a vec3 with random x, y and z values
+func Random() *Vec3 {
+	return NewVec3(rand.Float64(), rand.Float64(), rand.Float64())
+}
+
+// RandomBound returns a vec3 with a random x, y, and z values between min and max
+func RandomBound(min, max float64) *Vec3 {
+	return NewVec3(randomFloat(min, max), randomFloat(min, max), randomFloat(min, max))
+}
+
+// RandomUnitInUnitSphere returns a vector that touches the unit sphere
+func RandomUnitInUnitSphere() *Vec3 {
+	for {
+		p := RandomBound(-1.0, 1.0)
+		if p.LengthSquared() >= 1 {
+			continue
+		}
+		return p
+	}
 }
