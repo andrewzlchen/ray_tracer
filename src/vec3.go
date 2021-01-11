@@ -124,3 +124,21 @@ func RandomUnitInUnitSphere() *Vec3 {
 		return p
 	}
 }
+
+// RandomUnitVector returns the unit vector of a vector that touches the the unit sphere
+func RandomUnitVector() (*Vec3, error) {
+	unit, err := RandomUnitInUnitSphere().Unit()
+	if err != nil {
+		return nil, err
+	}
+	return unit, nil
+}
+
+// RandomInHemisphere returns a random vector within the same hemisphere of the normal
+func RandomInHemisphere(normal *Vec3) *Vec3 {
+	inUnitSphere := RandomUnitInUnitSphere()
+	if inUnitSphere.Dot(normal) > 0.0 {
+		return inUnitSphere
+	}
+	return inUnitSphere.MultiplyFloat(-1.0)
+}

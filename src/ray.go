@@ -56,7 +56,15 @@ func (r *Ray) Color(world Hittable, depth int) (*Vec3, error) {
 		return nil, fmt.Errorf("could not compute collision: %s", err)
 	}
 	if didHit {
-		target := hitRecord.P.AddVector(hitRecord.Normal).AddVector(RandomUnitInUnitSphere())
+		// lambertian formula
+		// randomUnitVec, err := RandomUnitVector()
+		// if err != nil {
+		// 	return nil, fmt.Errorf("could not generate random unit vector: %s", err)
+		// }
+		// target := hitRecord.P.AddVector(hitRecord.Normal).AddVector(randomUnitVec)
+
+		// more intuitive approach, but less desireable
+		target := hitRecord.P.AddVector(RandomInHemisphere(hitRecord.Normal))
 		randomRay := NewRay(hitRecord.P, target.SubtractVector(hitRecord.P))
 		doubleColor, err := randomRay.Color(world, depth-1)
 		if err != nil {
