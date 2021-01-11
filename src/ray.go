@@ -51,7 +51,7 @@ func (r *Ray) Color(world Hittable, depth int) (*Vec3, error) {
 		return NewVec3(0, 0, 0), nil
 	}
 
-	hitRecord, didHit, err := world.Hit(r, 0, math.Inf(1))
+	hitRecord, didHit, err := world.Hit(r, 0.001, math.Inf(1))
 	if err != nil {
 		return nil, fmt.Errorf("could not compute collision: %s", err)
 	}
